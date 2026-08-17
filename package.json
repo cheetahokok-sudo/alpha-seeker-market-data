@@ -1,0 +1,12 @@
+{
+  "name": "alpha-seeker-market-data",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "publish": "node scripts/publish.mjs"
+  },
+  "dependencies": {
+    "unpdf": "1.6.2"
+  }
+}

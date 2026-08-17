@@ -1,0 +1,38 @@
+name: Publish CME gold options snapshot
+
+on:
+  schedule:
+    - cron: '30 6,16 * * 1-5'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: cme-gold-options-snapshot
+  cancel-in-progress: false
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+          cache: npm
+      - run: npm ci
+      - run: npm run publish
+      - name: Commit changed snapshot
+        shell: bash
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add data/gc-options.json
+          if git diff --cached --quiet; then
+            echo "Snapshot unchanged"
+            exit 0
+          fi
+          git commit -m "Update CME gold options snapshot"
+          git push
