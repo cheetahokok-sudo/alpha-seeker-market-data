@@ -1,0 +1,28 @@
+name: Refresh Alpha Seeker Gold Pulse
+
+on:
+  schedule:
+    - cron: '*/5 * * * *'
+  workflow_dispatch:
+
+concurrency:
+  group: alpha-seeker-gold-refresh
+  cancel-in-progress: false
+
+jobs:
+  refresh:
+    runs-on: ubuntu-latest
+    timeout-minutes: 2
+    steps:
+      - name: Refresh adaptive Gold signal
+        env:
+          GOLD_REFRESH_URL: ${{ vars.GOLD_REFRESH_URL }}
+          GOLD_CRON_SECRET: ${{ secrets.GOLD_CRON_SECRET }}
+        run: |
+          test -n "$GOLD_REFRESH_URL"
+          test -n "$GOLD_CRON_SECRET"
+          curl --fail-with-body --silent --show-error \
+            --max-time 90 \
+            --retry 2 \
+            --header "Authorization: Bearer $GOLD_CRON_SECRET" \
+            "${GOLD_REFRESH_URL%/}/api/gold-daytrade?scheduled=1"
